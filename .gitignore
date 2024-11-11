@@ -1,0 +1,4 @@
+node_modules/
+.env
+data/hotels.json
+data/images/*
