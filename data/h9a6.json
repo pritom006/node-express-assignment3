@@ -1,0 +1,52 @@
+{
+  "hotel_id": "h9a6",
+  "slug": "lakefront-serenity-villa",
+  "images": [
+    "/images/1731408145380.jpeg",
+    "/images/1731408145381.jpeg",
+    "/images/1731408145381.jpg",
+    "/images/1731408145381.jpeg"
+  ],
+  "title": "Lakefront Serenity Villa",
+  "description": "A peaceful villa on the lakefront with direct access to nature trails and stunning water views.",
+  "guest_count": 8,
+  "bedroom_count": 4,
+  "bathroom_count": 3,
+  "amenities": [
+    "Wifi",
+    "Fireplace",
+    "Private Dock",
+    "Kayaks",
+    "BBQ Grill"
+  ],
+  "host_information": {
+    "name": "Emma Brown",
+    "contact": "5566778899"
+  },
+  "address": "321 Lakeside Lane",
+  "latitude": 37.7749,
+  "longitude": -122.4194,
+  "rooms": [
+    {
+      "hotel_slug": "lakefront-serenity-villa",
+      "room_slug": "lake-view-master-suite",
+      "room_image": "/images/lake-master-suite.jpg",
+      "room_title": "Lake View Master Suite",
+      "bedroom_count": 1
+    },
+    {
+      "hotel_slug": "lakefront-serenity-villa",
+      "room_slug": "garden-room",
+      "room_image": "/images/garden-room.jpeg",
+      "room_title": "Garden Room",
+      "bedroom_count": 1
+    },
+    {
+      "hotel_slug": "lakefront-serenity-villa",
+      "room_slug": "cozy-loft",
+      "room_image": "/images/cozy-loft.jpg",
+      "room_title": "Cozy Loft",
+      "bedroom_count": 2
+    }
+  ]
+}

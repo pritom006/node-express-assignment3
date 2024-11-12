@@ -1,0 +1,28 @@
+{
+  "hotel_id": "he50",
+  "slug": "sample-hotel",
+  "images": [
+    "/images/1731413650653.jpg"
+  ],
+  "title": "Updated Sample Hotel",
+  "description": "A sample hotel for testing",
+  "guest_count": 4,
+  "bedroom_count": 1,
+  "bathroom_count": 1,
+  "amenities": "[\"wifi\",\"parking\",\"pool\"]",
+  "host_information": {
+    "name": "Host",
+    "contact": "123456789"
+  },
+  "address": "Sample Address",
+  "latitude": 40.7128,
+  "longitude": -74.006,
+  "rooms": [
+    {
+      "hotel_slug": "sample-hotel",
+      "room_slug": "room-1",
+      "room_title": "Room 1",
+      "bedroom_count": 1
+    }
+  ]
+}
