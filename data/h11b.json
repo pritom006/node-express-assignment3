@@ -1,0 +1,34 @@
+{
+  "hotel_id": "h11b",
+  "slug": "luxury-beachside-hotel",
+  "images": [
+    "/images/1731391874252.jpg",
+    "/images/1731392121780.jpg"
+  ],
+  "title": "Luxury Beachside Hotel",
+  "description": "Updated hotel description",
+  "guest_count": 4,
+  "bedroom_count": 2,
+  "bathroom_count": 2,
+  "amenities": [
+    "Wifi",
+    "Pool",
+    "Air Conditioning"
+  ],
+  "host_information": {
+    "name": "John Doe",
+    "contact": "1234567890"
+  },
+  "address": "123 Ocean Drive",
+  "latitude": 25.7617,
+  "longitude": -80.1918,
+  "rooms": [
+    {
+      "hotel_slug": "luxury-beachside-hotel",
+      "room_slug": "ocean-view-suite",
+      "room_image": "/images/ocean-suite.jpg",
+      "room_title": "Ocean View Suite",
+      "bedroom_count": 1
+    }
+  ]
+}

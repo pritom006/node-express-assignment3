@@ -1,0 +1,39 @@
+{
+  "hotel_id": "hf1c",
+  "slug": "urban-sky-hotel",
+  "images": [
+    "/images/1731396649624.jpeg",
+    "/images/1731396649624.jpeg"
+  ],
+  "title": "Urban Sky Hotel",
+  "description": "A modern hotel offering stunning city skyline views and luxurious amenities. Updated",
+  "guest_count": 10,
+  "bedroom_count": 5,
+  "bathroom_count": 4,
+  "amenities": [
+    "Wifi",
+    "Swimming Pool",
+    "Spa",
+    "Restaurant",
+    "Bar"
+  ],
+  "host_information": {
+    "name": "Michael Thompson",
+    "contact": "1122334455"
+  },
+  "address": "789 City Center Avenue",
+  "latitude": 34.0522,
+  "longitude": -118.2437,
+  "rooms": [
+    {
+      "room_title": "Penthouse Suite",
+      "room_image": "/images/gallery.jpeg",
+      "bedroom_count": 3
+    },
+    {
+      "room_title": "Skyline View Room",
+      "room_image": "/images/apartment.jpeg",
+      "bedroom_count": 2
+    }
+  ]
+}

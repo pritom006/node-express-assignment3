@@ -1,226 +1,144 @@
-const { readData, writeData } = require('../db');
-const slugify = require('slugify');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
+const fs = require("fs");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
+const slugify = require("slugify");
+const upload = require("../middlewares/upload");
 
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = 'data/images';
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    cb(null, `${uuidv4()}${path.extname(file.originalname)}`);
-  }
-});
+// Utility function to generate a new hotel ID
+const generateHotelId = () => "h" + uuidv4().slice(0, 3);
 
-const upload = multer({ 
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'));
-    }
-  }
-}).array('images', 10); // Allow up to 10 images
-
-const getAllHotels = (req, res) => {
-  try {
-    const hotels = readData();
-    res.status(200).json(hotels);
-  } catch (error) {
-    res.status(500).json({ error: 'Error retrieving hotels' });
-  }
-};
-
+// Controller to create a new hotel
 const createHotel = (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    const {
+      title,
+      description,
+      guest_count,
+      bedroom_count,
+      bathroom_count,
+      amenities,
+      host_information,
+      address,
+      latitude,
+      longitude,
+      rooms
+    } = req.body;
 
-    try {
-      const hotels = readData();
-      const {
-        title,
-        description,
-        guest_count,
-        bedroom_count,
-        bathroom_count,
-        amenities,
-        host_information,
-        address,
-        latitude,
-        longitude
-      } = req.body;
+    // if (!title || !description || !guest_count || !bedroom_count || !bathroom_count || !amenities || !host_information || !address) {
+    //   return res.status(400).json({ error: "Missing required fields" });
+    // }
 
-      // Validate required fields
-      if (!title || !description) {
-        return res.status(400).json({ error: 'Title and description are required' });
-      }
+    const hotelId = generateHotelId();
+    const slug = slugify(title, { lower: true, strict: true });
+    const images = req.files ? req.files.map(file => `/images/${file.filename}`) : [];
 
-      // Generate slug
-      let baseSlug = slugify(title, { lower: true, strict: true });
-      let slug = baseSlug;
-      let counter = 1;
+    const parsedAmenities = typeof amenities === "string" ? JSON.parse(amenities) : amenities;
+    const parsedHostInfo = typeof host_information === "string" ? JSON.parse(host_information) : host_information;
+    const parsedRooms = typeof rooms === "string" ? JSON.parse(rooms) : rooms;
 
-      // Ensure unique slug
-      while (hotels.some(hotel => hotel.slug === slug)) {
-        slug = `${baseSlug}-${counter}`;
-        counter++;
-      }
+    const newHotel = {
+      hotel_id: hotelId,
+      slug: slug,
+      images: images,
+      title: title,
+      description: description,
+      guest_count: parseInt(guest_count),
+      bedroom_count: parseInt(bedroom_count),
+      bathroom_count: parseInt(bathroom_count),
+      amenities: parsedAmenities,
+      host_information: parsedHostInfo,
+      address: address,
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+      rooms: parsedRooms.map(room => ({
+        hotel_slug: slug,
+        room_slug: slugify(room.room_title, { lower: true, strict: true }),
+        room_image: room.room_image,
+        room_title: room.room_title,
+        bedroom_count: parseInt(room.bedroom_count)
+      }))
+    };
 
-      // Process uploaded images
-      const images = req.files ? req.files.map(file => `/images/${file.filename}`) : [];
+    const filePath = path.join("data", `${hotelId}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(newHotel, null, 2));
 
-      if (images.length < 1) {
-        return res.status(400).json({ error: 'At least one image is required' });
-      }
-
-      const newHotel = {
-        id: uuidv4(),
-        slug,
-        images,
-        title,
-        description,
-        guest_count: parseInt(guest_count) || 0,
-        bedroom_count: parseInt(bedroom_count) || 0,
-        bathroom_count: parseInt(bathroom_count) || 0,
-        amenities: amenities ? JSON.parse(amenities) : [],
-        host_information: host_information ? JSON.parse(host_information) : {},
-        address: address || '',
-        latitude: parseFloat(latitude) || 0,
-        longitude: parseFloat(longitude) || 0,
-        created_at: new Date().toISOString()
-      };
-
-      hotels.push(newHotel);
-      writeData(hotels);
-
-      res.status(201).json({ message: 'Hotel created successfully', hotel: newHotel });
-    } catch (error) {
-      res.status(500).json({ error: 'Error creating hotel: ' + error.message });
-    }
-  });
+    res.status(201).json({ message: "Hotel created successfully", hotel: newHotel });
+  } catch (error) {
+    res.status(500).json({ error: "Error creating hotel: " + error.message });
+  }
 };
 
+// Controller to upload images for a specific hotel
+const uploadImages = (req, res) => {
+  const hotelId = req.body.hotel_id;
+  if (!hotelId) {
+    return res.status(400).json({ error: "Hotel ID is required" });
+  }
+
+  const directoryPath = path.join(__dirname, "../data", `${hotelId}.json`);
+  if (!fs.existsSync(directoryPath)) {
+    return res.status(404).json({ error: "Hotel not found" });
+  }
+
+  const hotelData = JSON.parse(fs.readFileSync(directoryPath, "utf-8"));
+  const imageUrls = req.files ? req.files.map(file => `/images/${file.filename}`) : [];
+  hotelData.images = hotelData.images.concat(imageUrls);
+
+  fs.writeFileSync(directoryPath, JSON.stringify(hotelData, null, 2));
+  res.status(200).json({ message: "Images uploaded successfully", images: imageUrls });
+};
+
+// Controller to get all hotels
+const getHotels = (req, res) => {
+  const directoryPath = path.join(__dirname, "../data");
+  const hotelFiles = fs.readdirSync(directoryPath);
+
+  const hotels = hotelFiles.map((file) => {
+    const filePath = path.join(directoryPath, file);
+    const hotelData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    return hotelData;
+  });
+
+  res.status(200).json(hotels);
+};
+
+
+// Controller to get a specific hotel by hotelId or slug
 const getHotel = (req, res) => {
-  try {
-    const { slug } = req.params;
-    const hotels = readData();
-    const hotel = hotels.find(h => h.slug === slug);
+  const hotelId = req.params.hotelId;
+  const filePath = path.join(__dirname, "../data", `${hotelId}.json`);
 
-    if (hotel) {
-      res.status(200).json(hotel);
-    } else {
-      res.status(404).json({ error: 'Hotel not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Error retrieving hotel' });
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "Hotel not found" });
   }
+
+  const hotelData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  res.status(200).json(hotelData);
 };
 
+// Controller to update hotel details
 const updateHotel = (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  const hotelId = req.params.hotelId;
+  const filePath = path.join(__dirname, "../data", `${hotelId}.json`);
 
-    try {
-      const { slug } = req.params;
-      const hotels = readData();
-      const hotelIndex = hotels.findIndex(h => h.slug === slug);
-
-      if (hotelIndex === -1) {
-        return res.status(404).json({ error: 'Hotel not found' });
-      }
-
-      const currentHotel = hotels[hotelIndex];
-      const {
-        title,
-        description,
-        guest_count,
-        bedroom_count,
-        bathroom_count,
-        amenities,
-        host_information,
-        address,
-        latitude,
-        longitude
-      } = req.body;
-
-      // Process new images if uploaded
-      const newImages = req.files ? req.files.map(file => `/images/${file.filename}`) : [];
-      const images = newImages.length > 0 ? newImages : currentHotel.images;
-
-      const updatedHotel = {
-        ...currentHotel,
-        title: title || currentHotel.title,
-        description: description || currentHotel.description,
-        images,
-        guest_count: parseInt(guest_count) || currentHotel.guest_count,
-        bedroom_count: parseInt(bedroom_count) || currentHotel.bedroom_count,
-        bathroom_count: parseInt(bathroom_count) || currentHotel.bathroom_count,
-        amenities: amenities ? JSON.parse(amenities) : currentHotel.amenities,
-        host_information: host_information ? JSON.parse(host_information) : currentHotel.host_information,
-        address: address || currentHotel.address,
-        latitude: parseFloat(latitude) || currentHotel.latitude,
-        longitude: parseFloat(longitude) || currentHotel.longitude,
-        updated_at: new Date().toISOString()
-      };
-
-      hotels[hotelIndex] = updatedHotel;
-      writeData(hotels);
-
-      res.status(200).json({ message: 'Hotel updated successfully', hotel: updatedHotel });
-    } catch (error) {
-      res.status(500).json({ error: 'Error updating hotel: ' + error.message });
-    }
-  });
-};
-
-const deleteHotel = (req, res) => {
-  try {
-    const { slug } = req.params;
-    const hotels = readData();
-    const hotelIndex = hotels.findIndex(h => h.slug === slug);
-
-    if (hotelIndex === -1) {
-      return res.status(404).json({ error: 'Hotel not found' });
-    }
-
-    // Delete associated images
-    const hotel = hotels[hotelIndex];
-    hotel.images.forEach(imagePath => {
-      const fullPath = path.join(__dirname, '..', 'data', imagePath);
-      if (fs.existsSync(fullPath)) {
-        fs.unlinkSync(fullPath);
-      }
-    });
-
-    hotels.splice(hotelIndex, 1);
-    writeData(hotels);
-
-    res.status(200).json({ message: 'Hotel deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error deleting hotel' });
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "Hotel not found" });
   }
+
+  const hotelData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  const updatedData = req.body;
+
+  const updatedHotel = { ...hotelData, ...updatedData };
+  fs.writeFileSync(filePath, JSON.stringify(updatedHotel, null, 2));
+
+  res.status(200).json({ message: "Hotel updated successfully", hotel: updatedHotel });
 };
+
 
 module.exports = {
-  getAllHotels,
   createHotel,
+  getHotels,
   getHotel,
   updateHotel,
-  deleteHotel
+  uploadImages
 };
