@@ -24,9 +24,9 @@ const createHotel = (req, res) => {
       rooms
     } = req.body;
 
-    // if (!title || !description || !guest_count || !bedroom_count || !bathroom_count || !amenities || !host_information || !address) {
-    //   return res.status(400).json({ error: "Missing required fields" });
-    // }
+    if (!title || !description || !guest_count || !bedroom_count || !bathroom_count || !amenities || !host_information || !address) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
     const hotelId = generateHotelId();
     const slug = slugify(title, { lower: true, strict: true });

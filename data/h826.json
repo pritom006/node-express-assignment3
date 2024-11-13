@@ -1,0 +1,59 @@
+{
+  "hotel_id": "h826",
+  "slug": "sunset-cliffs-escape",
+  "images": [
+    "/images/1731470792641.jpeg",
+    "/images/1731470792642.jpeg",
+    "/images/1731470792642.jpg",
+    "/images/1731470792643.jpeg"
+  ],
+  "title": "Sunset Cliffs Escape",
+  "description": "A luxurious retreat nestled on the cliffs, offering breathtaking sunset views and private beach access.",
+  "guest_count": 10,
+  "bedroom_count": 5,
+  "bathroom_count": 4,
+  "amenities": [
+    "Wifi",
+    "Infinity Pool",
+    "Private Beach",
+    "Hot Tub",
+    "Outdoor Kitchen"
+  ],
+  "host_information": {
+    "name": "Michael Johnson",
+    "contact": "9988776655"
+  },
+  "address": "789 Sunset Cliffs Blvd",
+  "latitude": 34.0195,
+  "longitude": -118.4912,
+  "rooms": [
+    {
+      "hotel_slug": "sunset-cliffs-escape",
+      "room_slug": "cliffside-master-suite",
+      "room_image": "/images/cliffside-master-suite.jpg",
+      "room_title": "Cliffside Master Suite",
+      "bedroom_count": 1
+    },
+    {
+      "hotel_slug": "sunset-cliffs-escape",
+      "room_slug": "ocean-view-room",
+      "room_image": "/images/ocean-view-room.jpg",
+      "room_title": "Ocean View Room",
+      "bedroom_count": 1
+    },
+    {
+      "hotel_slug": "sunset-cliffs-escape",
+      "room_slug": "family-suite",
+      "room_image": "/images/family-suite.jpg",
+      "room_title": "Family Suite",
+      "bedroom_count": 2
+    },
+    {
+      "hotel_slug": "sunset-cliffs-escape",
+      "room_slug": "garden-studio",
+      "room_image": "/images/garden-studio.jpg",
+      "room_title": "Garden Studio",
+      "bedroom_count": 1
+    }
+  ]
+}
